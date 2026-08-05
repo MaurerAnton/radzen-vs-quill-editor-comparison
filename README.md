@@ -1,6 +1,8 @@
 # Rich Text Editor Comparison: Radzen HtmlEditor vs Quill 2
 
-A small .NET 8 Blazor (Server) application that renders two rich text editors side by side on a single page:
+**Live demo (Blazor WebAssembly on GitHub Pages): <https://maureranton.github.io/radzen-vs-quill-editor-comparison/>**
+
+A small .NET 8 Blazor (WebAssembly) application that renders two rich text editors side by side on a single page:
 
 - **Radzen HtmlEditor** (from the MIT-licensed [Radzen.Blazor](https://github.com/radzenhq/radzen-blazor) library)
 - **Quill 2** (snow theme, BSD-3-Clause, vendored locally under `wwwroot/quill/`)

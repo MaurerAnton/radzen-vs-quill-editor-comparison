@@ -1,0 +1,149 @@
+@page "/compare"
+@layout Layout.BlankLayout
+@rendermode InteractiveServer
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+<PageTitle>Radzen vs Quill</PageTitle>
+
+<h1 class="mb-3">Radzen HtmlEditor vs Quill 2</h1>
+
+<div class="alert alert-info">
+    <strong>How to reproduce the known "link leaks to the next line" bug:</strong>
+    <ol class="mb-0">
+        <li>At the end of the first paragraph, select the text <u>all the way to the end of the line/paragraph</u> (include the line break in the selection).</li>
+        <li>Click "Insert link" in the toolbar and enter a URL.</li>
+        <li>Press Enter and type text on the new line.</li>
+        <li>In Radzen the next line may inherit the link (fix it with Ctrl+Z); in Quill it will not.</li>
+    </ol>
+</div>
+
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <strong>Radzen HtmlEditor</strong>
+                <span>
+                    <button class="btn btn-sm btn-primary" @onclick="RadzenInsertSample">Sample link</button>
+                    <button class="btn btn-sm btn-secondary" @onclick="CopyRadzenToQuill">→ Quill</button>
+                </span>
+            </div>
+            <div class="card-body">
+                <RadzenHtmlEditor @ref="radzenEditor" @bind-Value="radzenValue" Input="OnRadzenInput"
+                    Style="height: 340px;" />
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <strong>Quill 2 (snow)</strong>
+                <span>
+                    <button class="btn btn-sm btn-primary" @onclick="QuillInsertSample">Sample link</button>
+                    <button class="btn btn-sm btn-secondary" @onclick="CopyQuillToRadzen">→ Radzen</button>
+                </span>
+            </div>
+            <div class="card-body">
+                <div @ref="quillContainer" style="height: 340px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">HTML: Radzen (live)</div>
+            <div class="card-body">
+                <textarea class="form-control font-monospace" rows="7" readonly value="@radzenPreview"></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">HTML: Quill (live)</div>
+            <div class="card-body">
+                <textarea class="form-control font-monospace" rows="7" readonly value="@quillValue"></textarea>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-3">
+    <button class="btn btn-outline-secondary" @onclick="ResetBoth">Reset both editors</button>
+</div>
+
+@code {
+    const string InitialHtml = @"<p>First paragraph - select text up to the end of the line and insert a link.</p><p>Second paragraph.</p>";
+
+    RadzenHtmlEditor? radzenEditor;
+    ElementReference quillContainer;
+    DotNetObjectReference<Compare>? dotNet;
+
+    string radzenValue = InitialHtml;
+    string radzenPreview = InitialHtml;
+    string quillValue = InitialHtml;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            dotNet = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("compareQuill.init", quillContainer, dotNet);
+            await JS.InvokeVoidAsync("compareQuill.setHtml", quillValue);
+        }
+    }
+
+    [JSInvokable]
+    public void OnQuillChange(string html)
+    {
+        quillValue = html;
+        StateHasChanged();
+    }
+
+    void OnRadzenInput(string html)
+    {
+        radzenPreview = html;
+    }
+
+    async Task RadzenInsertSample()
+    {
+        if (radzenEditor is null) return;
+        await radzenEditor.ExecuteCommandAsync(HtmlEditorCommands.InsertHtml,
+            "<a href=\"https://example.com\">sample link</a>");
+    }
+
+    async Task QuillInsertSample()
+    {
+        await JS.InvokeVoidAsync("compareQuill.insertSampleLink");
+    }
+
+    async Task CopyRadzenToQuill()
+    {
+        await JS.InvokeVoidAsync("compareQuill.setHtml", radzenPreview);
+    }
+
+    Task CopyQuillToRadzen()
+    {
+        radzenValue = quillValue;
+        radzenPreview = quillValue;
+        return Task.CompletedTask;
+    }
+
+    async Task ResetBoth()
+    {
+        radzenValue = InitialHtml;
+        radzenPreview = InitialHtml;
+        quillValue = InitialHtml;
+        await JS.InvokeVoidAsync("compareQuill.setHtml", InitialHtml);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (dotNet is not null)
+        {
+            dotNet.Dispose();
+        }
+        await Task.CompletedTask;
+    }
+}

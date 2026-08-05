@@ -97,15 +97,17 @@ These platforms accept any Dockerfile; Option C's Dockerfile works as-is. Set th
 
 ## How it works
 
-- `Components/Pages/Compare.razor` — the page: two editor cards, live HTML preview textareas, "Sample link" and copy buttons, reset button.
+- `Components/Pages/Compare.razor` — the page: two editor cards, live HTML preview textareas, "Sample link" and copy buttons, reset button, and a research section comparing the two editors (code size, release dates, community, known complaints).
 - `Components/Layout/BlankLayout.razor` — minimal layout without the sidebar (used by the comparison page).
+- `<RadzenDialog />` / `<RadzenTooltip />` live inside `Compare.razor`, **not** in the layout. With `@rendermode InteractiveServer`, components placed in a layout render in a static/prerender scope and never subscribe to the interactive circuit's `DialogService` - the editor's link dialog would silently never open. Keep them inside the interactive page (or an interactive layout).
 - `wwwroot/quill/quillModule.js` — thin JS bridge exposing `compareQuill.init/getHtml/setHtml/insertSampleLink`; it holds a `DotNetObjectReference` to push changes back to Blazor via `[JSInvokable] OnQuillChange`.
 - `Program.cs` — registers Razor Components (Interactive Server) and `AddRadzenComponents()` (required by Radzen HtmlEditor; otherwise it throws `Cannot provide a value for property 'ContextMenuService'`).
 
 ## Known issues / notes
 
-- The link-leak defect is in Radzen's own JS (`document.execCommand` without DOM normalization). It cannot be caught by component-level tests (bUnit) because JS interop is mocked; only real-browser E2E can reproduce it.
+- The link-leak defect is in Radzen's own JS (`document.execCommand` without DOM normalization). It cannot be caught by component-level tests (bUnit) because JS interop is mocked; only real-browser E2E can reproduce it. Note: through the dialog flow the leak is not reliably reproducible - Radzen inserts a fully constructed `<a>` via `insertHTML`, which consumes the boundary `<br>`.
 - The Radzen theme (`default.css`) is invasive: it globally restyles `.nav`, `.sidebar` and `.card`. The compatibility overrides live in `wwwroot/app.css` under a "Compatibility" section.
+- Radzen dialogs require `RadzenDialog` in the interactive component tree - see "How it works" for the render-mode gotcha.
 
 ## License
 

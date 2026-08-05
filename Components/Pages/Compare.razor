@@ -6,6 +6,9 @@
 
 <PageTitle>Radzen vs Quill</PageTitle>
 
+<RadzenDialog />
+<RadzenTooltip />
+
 <h1 class="mb-3">Radzen HtmlEditor vs Quill 2</h1>
 
 <div class="alert alert-info">
@@ -71,6 +74,111 @@
 
 <div class="mt-3">
     <button class="btn btn-outline-secondary" @onclick="ResetBoth">Reset both editors</button>
+</div>
+
+<div class="mt-5">
+    <h2 class="mb-3">Research: Radzen HtmlEditor vs Quill 2</h2>
+
+    <div class="table-responsive">
+        <table class="table table-sm table-striped align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 18%">Dimension</th>
+                    <th>Radzen HtmlEditor</th>
+                    <th>Quill 2</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>First released</td>
+                    <td>January 2021, as part of the Radzen.Blazor component suite (library repo since February 2019)</td>
+                    <td>Project started in 2012; Quill 1.0 in September 2016; Quill 2.0 in April 2024</td>
+                </tr>
+                <tr>
+                    <td>Age (2026)</td>
+                    <td>~5.5 years</td>
+                    <td>~14 years (2.0 line: ~2 years)</td>
+                </tr>
+                <tr>
+                    <td>License</td>
+                    <td>MIT</td>
+                    <td>BSD-3-Clause</td>
+                </tr>
+                <tr>
+                    <td>Architecture</td>
+                    <td>WYSIWYG over the deprecated <code>document.execCommand</code> (browser-native editing, DOM is the document model)</td>
+                    <td>Own document model (Delta), custom rendering; framework-agnostic JS library with a JS API</td>
+                </tr>
+                <tr>
+                    <td>Code size</td>
+                    <td>Whole suite: ~167k LOC C#/Razor (1,227 files); the JS layer alone is ~7,000 lines (<code>Radzen.Blazor.js</code>)</td>
+                    <td>Core package: ~8.8k LOC TypeScript (64 files) plus ~10.3k LOC of tests (more tests than source)</td>
+                </tr>
+                <tr>
+                    <td>Community &amp; adoption</td>
+                    <td>4,323 stars; 20.8M NuGet downloads across 936 versions</td>
+                    <td>47.3k stars; ~10.9M npm downloads per week; 658 open issues</td>
+                </tr>
+                <tr>
+                    <td>Test coverage</td>
+                    <td>bUnit component tests - markup-level assertions, JS interop mocked (real browser behavior is not tested)</td>
+                    <td>Unit tests over the Delta model and modules; no official E2E browser suite</td>
+                </tr>
+                <tr>
+                    <td>Maintenance model</td>
+                    <td>Evolves with the Radzen.Blazor suite; burn-and-fix, no public roadmap for the editor</td>
+                    <td>Core team (Slab) with structured, infrequent major releases; API stability is a stated goal</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header"><strong>Radzen HtmlEditor - what people complain about</strong></div>
+                <div class="card-body">
+                    <p class="text-muted small mb-2">From GitHub issues (24 closed, 0 open):</p>
+                    <ul class="mb-0 small">
+                        <li>Exceptions when the editor is used inside a dialog (e.g., the URL/link command)</li>
+                        <li>Crashes when pasting from Word; sporadic JS errors like "Cannot read properties of null (reading 'innerHTML')"</li>
+                        <li>Image handling: paste image throws, "insert not working", upload/resize/thumbnail requests</li>
+                        <li>Accessibility: toolbar buttons missing aria-labels</li>
+                        <li>"View source" mode broken inside EditForm; autofocus problems in dialogs</li>
+                        <li>Formatting leaks across lines - e.g., a link is inherited by the next line after Enter (the bug this page reproduces)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header"><strong>Quill 2 - what people complain about</strong></div>
+                <div class="card-body">
+                    <p class="text-muted small mb-2">From GitHub issues (658 open):</p>
+                    <ul class="mb-0 small">
+                        <li>Tables are still a pain point (deleting empty tables, parsing bugs) even after 2.0 added them</li>
+                        <li>Pasting from Google Docs/Outlook/web: lost content, empty lines, double spaces</li>
+                        <li>Paste images and clipboard handling remain finicky</li>
+                        <li>No built-in collaborative editing (requires Yjs etc.) and no official framework wrappers</li>
+                        <li>The Delta model has a learning curve for custom content manipulation</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header"><strong>Timeline</strong></div>
+        <div class="card-body small">
+            <ul class="mb-0">
+                <li><strong>2012</strong> - Quill project starts</li>
+                <li><strong>Sep 2016</strong> - Quill 1.0 (4 years of development)</li>
+                <li><strong>Feb 2019</strong> - radzen-blazor repository created</li>
+                <li><strong>Jan 2021</strong> - Radzen HtmlEditor added to the suite</li>
+                <li><strong>Apr 2024</strong> - Quill 2.0 (tables, new toolbar, ~5 years of development)</li>
+            </ul>
+        </div>
+    </div>
 </div>
 
 @code {

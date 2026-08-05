@@ -4,6 +4,9 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Non-SIMD runtime so the app also runs on CPUs without WASM SIMD
+         (e.g. AMD Bobcat E-350: no SSE4.1/SSE4.2). Requires wasm-tools workload. -->
+    <WasmEnableSIMD>false</WasmEnableSIMD>
   </PropertyGroup>
 
   <ItemGroup>
